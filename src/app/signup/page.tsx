@@ -1,54 +1,50 @@
 import logoImg from "/public/logo.svg";
 import Image from "next/image";
-import styles from "./page.module.scss";
+import styles from "../page.module.scss";
 import Link from "next/link";
 import { api } from "@/services/api";
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
 
-export default function Page() {
-  async function handleLogin(formData: FormData) {
+export default function SignUp() {
+  async function handleRegister(formData: FormData) {
     "use server";
 
+    const name = formData.get("name");
     const email = formData.get("email");
     const password = formData.get("password");
 
-    if (email === "" || password === "") {
+    if (name === "" || password === "" || email === "") {
+      console.log("Preencha todos os campos");
       return;
     }
 
     try {
-      const response = await api.post("/auth", {
+      await api.post("/users", {
+        name,
         email,
         password
       });
-
-      if (!response.data.token) {
-        return;
-      }
-
-      const trintaDias = 60 * 60 * 24 * 30 * 1000;
-      cookies().set("session", response.data.token, {
-        maxAge: trintaDias,
-        path: "/",
-        httpOnly: false,
-        secure: process.env.NODE_ENV === "production" //serve pra permitir acesso ao cookie só em https, mas como tá em desenvolvimento não tem como
-      });
     } catch (err) {
-      console.error("Erro ao fazer login: " + err);
+      console.error("Erro ao cadastrar: " + err);
       return;
     }
-
-    redirect("/dashboard");
+    redirect("/");
   }
 
   return (
     <>
       <div className={styles.containerCenter}>
         <Image src={logoImg} alt="Logo da pizzaria" />
-
         <section className={styles.login}>
-          <form action={handleLogin}>
+          <h1>Criando sua conta</h1>
+          <form action={handleRegister}>
+            <input
+              type="text"
+              required
+              name="name"
+              placeholder="Digite seu nome..."
+              className={styles.input}
+            />
             <input
               type="email"
               required
@@ -65,11 +61,11 @@ export default function Page() {
               className={styles.input}
             />
 
-            <button type="submit">Acessar</button>
+            <button type="submit">Cadastrar</button>
           </form>
 
-          <Link href="/signup" className={styles.text}>
-            Não possui uma conta? Cadastre-se
+          <Link href="/" className={styles.text}>
+            Já possui uma conta? Faça login
           </Link>
         </section>
       </div>
