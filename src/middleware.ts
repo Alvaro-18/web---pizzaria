@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCookiesServer } from "./lib/cookieServer";
 import { api } from "./services/api";
+//testando alterações
 async function validateToken(token: string) {
   if (!token) return false;
 
